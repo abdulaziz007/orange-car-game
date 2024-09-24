@@ -37,7 +37,7 @@
         let gameOver = false;
 
         function setup() {
-            createCanvas(800, 400);
+            createCanvas(400, 800);
             resetGame();
         }
 
@@ -129,8 +129,8 @@
                 text(`Score: ${score}`, 10, 30);
             } else {
                 // Display Game Over Screen
-                background(50);
-                fill(255, 0, 0);
+                // background(50);
+                // fill(255, 0, 0);
                 textSize(50);
                 textAlign(CENTER, CENTER);
                 text("GAME OVER", width / 2, height / 2 - 50);
@@ -189,10 +189,10 @@
         // Manual check for collisions between the car and obstacles
         function checkCollision() {
             for (let obstacle of obstacles) {
-                if (car.x < obstacle.x + obstacle.width &&
-                    car.x + car.width > obstacle.x &&
-                    car.y < obstacle.y + obstacle.height &&
-                    car.y + car.height > obstacle.y) {
+                if (car.x < obstacle.x + obstacle.width-20 &&
+                    car.x + car.width-20 > obstacle.x &&
+                    car.y < obstacle.y + obstacle.height-20 &&
+                    car.y + car.height-20 > obstacle.y) {
                     console.log("Collision detected! Game Over.");
                     gameOver = true;
                 }

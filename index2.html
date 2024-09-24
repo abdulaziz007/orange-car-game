@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Wash Game</title>
+    <!-- Include the p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        .control-buttons {
+            text-align: center;
+            margin-top: 20px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .control-buttons button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let car;
+        let road;
+        let obstacles = [];
+        let lanes = [];
+        let currentLaneIndex = 1; // Car starts in the middle lane
+        let targetLaneX = 0;
+        let score = 0;
+        let washTimer = 0;
+        let dirty = false;
+        let gameOver = false;
+
+        function setup() {
+            createCanvas(800, 400);
+            resetGame();
+        }
+
+        function resetGame() {
+            // Define lane positions (3 lanes)
+            lanes = [width / 2.4 - 25, width / 2 - 25, 3 * width / 5.4 - 25]; // Center lane index = 1
+
+            // Reset car to the middle lane
+            car = {
+                x: lanes[currentLaneIndex],
+                y: height - 120, // Near bottom
+                width: 50,
+                height: 100,
+                speed: 5,
+                moveSpeed: 10, // Smooth movement speed
+                image: loadImage('car.png')
+            };
+
+            // Set the target lane position to current lane
+            targetLaneX = car.x;
+
+            // Load road image (you'll need to add an actual image path here)
+            road = {
+                y1: 0,
+                y2: -height,
+                speed: 4,
+                image: loadImage('road.png')
+            };
+
+            // Clear obstacles
+            obstacles = [];
+
+            // Reset score, timer, and dirty state
+            score = 0;
+            washTimer = 0;
+            dirty = false;
+            gameOver = false;
+
+            // Generate obstacles
+            setInterval(() => {
+                let obstacle = {
+                    x: lanes[int(random(0, 3))],  // Random lane for obstacles
+                    y: -50, // Start above the screen
+                    width: 40,
+                    height: 40,
+                    speed: 4 + random(2), // Random speed
+                    image: loadImage('image.png')
+                };
+                obstacles.push(obstacle);
+            }, 3000); // Add new obstacle every 3 seconds
+        }
+
+        function draw() {
+            if (!gameOver) {
+                background(200);
+
+                // Move and display the road to create a downward movement illusion
+                moveRoad();
+                displayRoad();
+
+                // Move car smoothly towards target lane
+                car.x += (targetLaneX - car.x) * 0.1;
+
+                // Display the car
+                image(car.image, car.x, car.y, car.width, car.height);
+
+                // Move and display obstacles
+                moveObstacles();
+                displayObstacles();
+
+                // Handle car washing and dirt logic
+                washTimer += deltaTime;
+
+                if (washTimer >= 60000) {
+                    dirty = true;
+                    console.log("Car is dirty, needs to stop at car wash.");
+                }
+
+                if (dirty && isAtCarWash()) {
+                    cleanCar();
+                }
+
+                // Check for collisions
+                checkCollision();
+
+                // Display score
+                fill(0);
+                textSize(24);
+                text(`Score: ${score}`, 10, 30);
+            } else {
+                // Display Game Over Screen
+                background(50);
+                fill(255, 0, 0);
+                textSize(50);
+                textAlign(CENTER, CENTER);
+                text("GAME OVER", width / 2, height / 2 - 50);
+                textSize(24);
+                text("Press ENTER to Restart", width / 2, height / 2);
+            }
+        }
+
+        function moveRoad() {
+            road.y1 += road.speed;
+            road.y2 += road.speed;
+
+            // Loop the road images for continuous downward movement
+            if (road.y1 >= height) {
+                road.y1 = -height;
+            }
+            if (road.y2 >= height) {
+                road.y2 = -height;
+            }
+        }
+
+        function displayRoad() {
+            image(road.image, 0, road.y1, width, height);
+            image(road.image, 0, road.y2, width, height);
+        }
+
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacles[i].speed;
+
+                // Remove obstacles that go off-screen
+                if (obstacles[i].y > height) {
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        function displayObstacles() {
+            for (let obstacle of obstacles) {
+                image(obstacle.image, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            }
+        }
+
+        function cleanCar() {
+            washTimer = 0;
+            dirty = false;
+            score += 10;
+            console.log(`Car is clean now. Score: ${score}`);
+        }
+
+        function isAtCarWash() {
+            // Simple random chance for car wash
+            return random() < 0.05;
+        }
+
+        // Manual check for collisions between the car and obstacles
+        function checkCollision() {
+            for (let obstacle of obstacles) {
+                if (car.x < obstacle.x + obstacle.width &&
+                    car.x + car.width > obstacle.x &&
+                    car.y < obstacle.y + obstacle.height &&
+                    car.y + car.height > obstacle.y) {
+                    console.log("Collision detected! Game Over.");
+                    gameOver = true;
+                }
+            }
+        }
+
+        // Move car based on lane index
+        function moveCar(direction) {
+            if (direction === 'left' && currentLaneIndex > 0) {
+                currentLaneIndex--;
+            } else if (direction === 'right' && currentLaneIndex < lanes.length - 1) {
+                currentLaneIndex++;
+            }
+            targetLaneX = lanes[currentLaneIndex]; // Update target lane for smooth movement
+        }
+
+        // Add event listeners for buttons
+        function setupControls() {
+            let leftButton = document.getElementById("leftBtn");
+            let rightButton = document.getElementById("rightBtn");
+
+            leftButton.addEventListener("click", () => {
+                if (!gameOver) {
+                    moveCar('left');
+                }
+            });
+
+            rightButton.addEventListener("click", () => {
+                if (!gameOver) {
+                    moveCar('right');
+                }
+            });
+        }
+
+        // Call setupControls when the document is ready
+        document.addEventListener("DOMContentLoaded", setupControls);
+    </script>
+
+    <!-- Control Buttons -->
+    <div class="control-buttons">
+        <button id="leftBtn">Left</button>
+        <button id="rightBtn">Right</button>
+    </div>
+</body>
+</html>

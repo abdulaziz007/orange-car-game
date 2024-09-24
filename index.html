@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Wash Game</title>
+    <!-- Include the p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let car;
+        let road;
+        let obstacles = [];
+        let lanes = [];
+        let currentLaneIndex = 1; // Car starts in the middle lane
+        let score = 0;
+        let washTimer = 0;
+        let dirty = false;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function setup() {
+          createCanvas(800, 400);
+          
+          // Define lane positions (3 lanes)
+          lanes = [width / 2.4 - 25, width / 2 - 25, 3 * width / 5.4 - 25]; // Center lane index = 1
+          
+          // Load car image (you'll need to add an actual image path here)
+          car = {
+            x: lanes[currentLaneIndex],  // Start in the middle lane
+            y: height - 120,    // Near bottom
+            width: 50,
+            height: 100,
+            image: loadImage('car.png'),
+            speed: 5
+          };
+
+          // Load road image (you'll need to add an actual image path here)
+          road = {
+            y1: 0,
+            y2: -height,
+            speed: 4,
+            image: loadImage('road.png')
+          };
+
+          // Generate obstacles
+          setInterval(() => {
+            let obstacle = {
+              x: lanes[int(random(0, 3))],  // Random lane for obstacles
+              y: -50, // Start above the screen
+              width: 40,
+              height: 40,
+              speed: 4 + random(2), // Random speed
+              image: loadImage('image.png')
+            };
+            obstacles.push(obstacle);
+          }, 3000); // Add new obstacle every 3 seconds
+        }
+
+        function draw() {
+          background(200);
+          
+          // Move and display the road to create a downward movement illusion
+          moveRoad();
+          displayRoad();
+
+          // Display the car
+          image(car.image, car.x, car.y, car.width, car.height);
+          
+          // Move and display obstacles
+          moveObstacles();
+          displayObstacles();
+
+          // Handle car washing and dirt logic
+          washTimer += deltaTime;
+          
+          if (washTimer >= 60000) {
+            dirty = true;
+            console.log("Car is dirty, needs to stop at car wash.");
+          }
+
+          if (dirty && isAtCarWash()) {
+            cleanCar();
+          }
+
+          // Display score
+          fill(0);
+          textSize(24);
+          text(`Score: ${score}`, 10, 30);
+        }
+
+        function moveRoad() {
+          road.y1 += road.speed;
+          road.y2 += road.speed;
+
+          // Loop the road images for continuous downward movement
+          if (road.y1 >= height) {
+            road.y1 = -height;
+          }
+          if (road.y2 >= height) {
+            road.y2 = -height;
+          }
+        }
+
+        function displayRoad() {
+          image(road.image, 0, road.y1, width, height);
+          image(road.image, 0, road.y2, width, height);
+        }
+
+        function moveObstacles() {
+          for (let i = 0; i < obstacles.length; i++) {
+            obstacles[i].y += obstacles[i].speed;
+
+            // Remove obstacles that go off-screen
+            if (obstacles[i].y > height) {
+              obstacles.splice(i, 1);
+            }
+          }
+        }
+
+        function displayObstacles() {
+          for (let obstacle of obstacles) {
+            image(obstacle.image, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+          }
+        }
+
+        function cleanCar() {
+          washTimer = 0;
+          dirty = false;
+          score += 10;
+          console.log(`Car is clean now. Score: ${score}`);
+        }
+
+        function isAtCarWash() {
+          // Simple random chance for car wash
+          return random() < 0.05;
+        }
+
+        // Move car based on lane index
+        function moveCar(direction) {
+          if (direction === 'left' && currentLaneIndex > 0) {
+            currentLaneIndex--;
+          } else if (direction === 'right' && currentLaneIndex < lanes.length - 1) {
+            currentLaneIndex++;
+          }
+          car.x = lanes[currentLaneIndex]; // Update car position based on lane
+        }
+
+        // Keyboard controls for desktop
+        function keyPressed() {
+          if (keyCode === LEFT_ARROW) {
+            moveCar('left');
+          } else if (keyCode === RIGHT_ARROW) {
+            moveCar('right');
+          }
+        }
+
+        // Touch/swipe controls for mobile
+        function touchStarted() {
+          touchStartX = touchX;
+          return false; // Prevent default behavior
+        }
+
+        function touchEnded() {
+          touchEndX = touchX;
+          if (touchEndX < touchStartX - 50) {
+            // Swipe left
+            moveCar('left');
+          } else if (touchEndX > touchStartX + 50) {
+            // Swipe right
+            moveCar('right');
+          }
+          return false; // Prevent default behavior
+        }
+    </script>
+</body>
+</html>

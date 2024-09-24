@@ -46,10 +46,10 @@
     </style>
 </head>
 <body>
-    <button class="restart-button" id="restartBtn" onclick="restartGame()">Restart</button>
+    <button class="restart-button" id="restartBtn" onclick="restartGame()">إعادة</button>
     <div class="control-buttons">
-        <button class="control-button" id="leftBtn" onclick="moveCar('left')">Left</button>
-        <button class="control-button" id="rightBtn" onclick="moveCar('right')">Right</button>
+        <button class="control-button" id="leftBtn" onclick="moveCar('left')">يسار</button>
+        <button class="control-button" id="rightBtn" onclick="moveCar('right')">يمين</button>
     </div>
     <script>
         let car;
@@ -165,7 +165,7 @@
                 // Display score
                 fill(0);
                 textSize(24);
-                text(`Score: ${score}`, 0, 30);
+                text(`النقاط: ${score}`, 280, 50);
 
                 // Move car smoothly
                 smoothCarMovement();
@@ -190,9 +190,9 @@
             fill(255, 0, 0);
             textSize(50);
             textAlign(CENTER, CENTER);
-            text("GAME OVER", width / 2, height / 2 - 50);
+            text("انتهت اللعبة", width / 2, height / 2 - 50);
             textSize(24);
-            text("Tap Restart", width / 2, height / 2);
+            text("اضغط على إعادة اللعب", width / 2, height / 2);
             showRestartButton();
         }
 

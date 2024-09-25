@@ -80,7 +80,7 @@
                 y: height - 120,    // Near bottom
                 width: 30,
                 height: 50,
-                image: loadImage('car.png'),
+                image: loadImage('./car.png'),
                 speed: 5
             };
 
@@ -89,7 +89,7 @@
                 y1: 0,
                 y2: -height,
                 speed: 4,
-                image: loadImage('road.png')
+                image: loadImage('./road.png')
             };
 
             resetGame();
@@ -102,7 +102,7 @@
                     width: 30,
                     height: 50,
                     speed: 4 - random(2), // Random speed
-                    image: loadImage(`image${int(random([1,2,3,4]))}.png`)
+                    image: loadImage(`./image${int(random([1,2,3,4]))}.png`)
                 };
                 let obstacle2 = {
                     x: lanes[int(random(0, 3))],  // Random lane for obstacles
@@ -110,7 +110,7 @@
                     width: 30,
                     height: 30,
                     speed: 4, // Random speed
-                    image: loadImage('obs.png')
+                    image: loadImage('./obs.png')
                 };
                 obstacles.push(obstacle);
                 obstacles.push(obstacle2);
@@ -121,7 +121,7 @@
                     width: 20,
                     height: 20,
                     speed: 4, // Coin speed
-                    image: loadImage('coin.png')
+                    image: loadImage('./coin.png')
                 };
                 coins.push(coin);
             }, 3000); // Add new obstacle and coin every 3 seconds
